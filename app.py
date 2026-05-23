@@ -11,23 +11,55 @@ import streamlit as st
 
 DB_PATH = "bolao_copa.db"
 
-TEAMS = {
-    "Brasil": "🇧🇷",
-    "Argentina": "🇦🇷",
-    "França": "🇫🇷",
-    "Alemanha": "🇩🇪",
-    "Espanha": "🇪🇸",
-    "Portugal": "🇵🇹",
-    "Inglaterra": "🏴",
-    "Itália": "🇮🇹",
-    "México": "🇲🇽",
-    "EUA": "🇺🇸",
-    "Holanda": "🇳🇱",
-    "Croácia": "🇭🇷",
-    "Uruguai": "🇺🇾",
-    "Japão": "🇯🇵",
-    "Marrocos": "🇲🇦",
-    "Canadá": "🇨🇦",
+COUNTRY_CODES = {
+    "África do Sul": "za",
+    "Alemanha": "de",
+    "Argélia": "dz",
+    "Argentina": "ar",
+    "Arábia Saudita": "sa",
+    "Austrália": "au",
+    "Áustria": "at",
+    "Bélgica": "be",
+    "Bósnia e Herzegovina": "ba",
+    "Brasil": "br",
+    "Cabo Verde": "cv",
+    "Canadá": "ca",
+    "Colômbia": "co",
+    "Coreia do Sul": "kr",
+    "Costa do Marfim": "ci",
+    "Croácia": "hr",
+    "Curaçao": "cw",
+    "Egito": "eg",
+    "Equador": "ec",
+    "Escócia": "gb-sct",
+    "Espanha": "es",
+    "Estados Unidos": "us",
+    "França": "fr",
+    "Gana": "gh",
+    "Haiti": "ht",
+    "Holanda": "nl",
+    "Inglaterra": "gb-eng",
+    "Irã": "ir",
+    "Iraque": "iq",
+    "Japão": "jp",
+    "Jordânia": "jo",
+    "Marrocos": "ma",
+    "México": "mx",
+    "Noruega": "no",
+    "Nova Zelândia": "nz",
+    "Panamá": "pa",
+    "Paraguai": "py",
+    "Portugal": "pt",
+    "Qatar": "qa",
+    "RD Congo": "cd",
+    "República Tcheca": "cz",
+    "Senegal": "sn",
+    "Suécia": "se",
+    "Suíça": "ch",
+    "Tunísia": "tn",
+    "Turquia": "tr",
+    "Uruguai": "uy",
+    "Uzbequistão": "uz",
 }
 
 
@@ -241,6 +273,88 @@ div[data-testid="stDataFrame"] {
         font-size: 38px;
     }
 }
+
+.team-shields-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 24px;
+}
+
+.team-shield {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    min-width: 96px;
+}
+
+.team-shield.compact {
+    min-width: 88px;
+}
+
+.flag-shield {
+    width: 58px;
+    height: 70px;
+    clip-path: polygon(50% 0%, 92% 18%, 92% 68%, 50% 100%, 8% 68%, 8% 18%);
+    overflow: hidden;
+    border: 2px solid rgba(255,255,255,0.24);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.30), inset 0 0 0 1px rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.08);
+}
+
+.team-shield.compact .flag-shield {
+    width: 54px;
+    height: 66px;
+}
+
+.flag-shield img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.shield-name {
+    font-size: 13px;
+    font-weight: 800;
+    color: #f8fafc;
+    line-height: 1.15;
+    text-align: center;
+    max-width: 110px;
+}
+
+.team-shield.compact .shield-name {
+    font-size: 12px;
+    max-width: 92px;
+}
+
+.versus-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.versus-x {
+    font-size: 28px;
+    font-weight: 950;
+    color: #facc15;
+    padding: 0 4px;
+}
+
+.match-meta {
+    color: #cbd5e1;
+    font-size: 13px;
+    margin-top: 10px;
+}
+
+.match-result-highlight {
+    margin-top: 8px;
+    color: #bbf7d0;
+    font-weight: 800;
+}
+
 </style>
 """
 st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
@@ -336,14 +450,78 @@ def init_db():
     count_matches = cur.execute("SELECT COUNT(*) AS total FROM matches").fetchone()["total"]
     if count_matches == 0:
         sample_matches = [
-            ("Brasil", "França", "2026-06-12 16:00"),
-            ("Argentina", "Alemanha", "2026-06-13 16:00"),
-            ("Espanha", "Inglaterra", "2026-06-14 16:00"),
-            ("Portugal", "Itália", "2026-06-15 16:00"),
-            ("México", "EUA", "2026-06-16 18:00"),
-            ("Holanda", "Croácia", "2026-06-17 15:00"),
-            ("Uruguai", "Japão", "2026-06-18 19:00"),
-            ("Marrocos", "Canadá", "2026-06-19 13:00"),
+            ("México", "África do Sul", "2026-06-11 15:00"),  # Jogo 1 - Grupo A
+            ("Coreia do Sul", "República Tcheca", "2026-06-12 22:00"),  # Jogo 2 - Grupo A
+            ("Canadá", "Bósnia e Herzegovina", "2026-06-12 15:00"),  # Jogo 3 - Grupo B
+            ("Estados Unidos", "Paraguai", "2026-06-12 21:00"),  # Jogo 4 - Grupo D
+            ("Haiti", "Escócia", "2026-06-13 21:00"),  # Jogo 5 - Grupo C
+            ("Austrália", "Turquia", "2026-06-13 00:00"),  # Jogo 6 - Grupo D
+            ("Brasil", "Marrocos", "2026-06-13 18:00"),  # Jogo 7 - Grupo C
+            ("Qatar", "Suíça", "2026-06-13 15:00"),  # Jogo 8 - Grupo B
+            ("Costa do Marfim", "Equador", "2026-06-14 19:00"),  # Jogo 9 - Grupo E
+            ("Alemanha", "Curaçao", "2026-06-14 13:00"),  # Jogo 10 - Grupo E
+            ("Holanda", "Japão", "2026-06-14 16:00"),  # Jogo 11 - Grupo F
+            ("Suécia", "Tunísia", "2026-06-14 22:00"),  # Jogo 12 - Grupo F
+            ("Arábia Saudita", "Uruguai", "2026-06-15 18:00"),  # Jogo 13 - Grupo H
+            ("Espanha", "Cabo Verde", "2026-06-15 12:00"),  # Jogo 14 - Grupo H
+            ("Irã", "Nova Zelândia", "2026-06-15 21:00"),  # Jogo 15 - Grupo G
+            ("Bélgica", "Egito", "2026-06-15 15:00"),  # Jogo 16 - Grupo G
+            ("França", "Senegal", "2026-06-16 15:00"),  # Jogo 17 - Grupo I
+            ("Noruega", "Iraque", "2026-06-16 18:00"),  # Jogo 18 - Grupo I
+            ("Argentina", "Argélia", "2026-06-16 21:00"),  # Jogo 19 - Grupo J
+            ("Áustria", "Jordânia", "2026-06-16 00:00"),  # Jogo 20 - Grupo J
+            ("Gana", "Panamá", "2026-06-17 19:00"),  # Jogo 21 - Grupo L
+            ("Inglaterra", "Croácia", "2026-06-17 16:00"),  # Jogo 22 - Grupo L
+            ("Portugal", "RD Congo", "2026-06-17 13:00"),  # Jogo 23 - Grupo K
+            ("Uzbequistão", "Colômbia", "2026-06-17 22:00"),  # Jogo 24 - Grupo K
+            ("República Tcheca", "África do Sul", "2026-06-18 12:00"),  # Jogo 25 - Grupo A
+            ("Suíça", "Bósnia e Herzegovina", "2026-06-18 15:00"),  # Jogo 26 - Grupo B
+            ("Canadá", "Qatar", "2026-06-18 18:00"),  # Jogo 27 - Grupo B
+            ("México", "Coreia do Sul", "2026-06-18 21:00"),  # Jogo 28 - Grupo A
+            ("Brasil", "Haiti", "2026-06-19 20:30"),  # Jogo 29 - Grupo C
+            ("Escócia", "Marrocos", "2026-06-19 18:00"),  # Jogo 30 - Grupo C
+            ("Turquia", "Paraguai", "2026-06-19 23:00"),  # Jogo 31 - Grupo D
+            ("Estados Unidos", "Austrália", "2026-06-19 15:00"),  # Jogo 32 - Grupo D
+            ("Alemanha", "Costa do Marfim", "2026-06-20 16:00"),  # Jogo 33 - Grupo E
+            ("Equador", "Curaçao", "2026-06-20 20:00"),  # Jogo 34 - Grupo E
+            ("Holanda", "Suécia", "2026-06-20 13:00"),  # Jogo 35 - Grupo F
+            ("Tunísia", "Japão", "2026-06-20 00:00"),  # Jogo 36 - Grupo F
+            ("Uruguai", "Cabo Verde", "2026-06-21 18:00"),  # Jogo 37 - Grupo H
+            ("Espanha", "Arábia Saudita", "2026-06-21 12:00"),  # Jogo 38 - Grupo H
+            ("Bélgica", "Irã", "2026-06-21 15:00"),  # Jogo 39 - Grupo G
+            ("Nova Zelândia", "Egito", "2026-06-21 21:00"),  # Jogo 40 - Grupo G
+            ("Noruega", "Senegal", "2026-06-22 20:00"),  # Jogo 41 - Grupo I
+            ("França", "Iraque", "2026-06-22 17:00"),  # Jogo 42 - Grupo I
+            ("Argentina", "Áustria", "2026-06-22 13:00"),  # Jogo 43 - Grupo J
+            ("Jordânia", "Argélia", "2026-06-22 23:00"),  # Jogo 44 - Grupo J
+            ("Inglaterra", "Gana", "2026-06-23 16:00"),  # Jogo 45 - Grupo L
+            ("Panamá", "Croácia", "2026-06-23 19:00"),  # Jogo 46 - Grupo L
+            ("Portugal", "Uzbequistão", "2026-06-23 13:00"),  # Jogo 47 - Grupo K
+            ("Colômbia", "RD Congo", "2026-06-23 22:00"),  # Jogo 48 - Grupo K
+            ("Escócia", "Brasil", "2026-06-24 18:00"),  # Jogo 49 - Grupo C
+            ("Marrocos", "Haiti", "2026-06-24 18:00"),  # Jogo 50 - Grupo C
+            ("Suíça", "Canadá", "2026-06-24 15:00"),  # Jogo 51 - Grupo B
+            ("Bósnia e Herzegovina", "Qatar", "2026-06-24 15:00"),  # Jogo 52 - Grupo B
+            ("República Tcheca", "México", "2026-06-24 21:00"),  # Jogo 53 - Grupo A
+            ("África do Sul", "Coreia do Sul", "2026-06-24 21:00"),  # Jogo 54 - Grupo A
+            ("Curaçao", "Costa do Marfim", "2026-06-25 16:00"),  # Jogo 55 - Grupo E
+            ("Equador", "Alemanha", "2026-06-25 16:00"),  # Jogo 56 - Grupo E
+            ("Japão", "Suécia", "2026-06-25 19:00"),  # Jogo 57 - Grupo F
+            ("Tunísia", "Holanda", "2026-06-25 19:00"),  # Jogo 58 - Grupo F
+            ("Turquia", "Estados Unidos", "2026-06-25 22:00"),  # Jogo 59 - Grupo D
+            ("Paraguai", "Austrália", "2026-06-25 22:00"),  # Jogo 60 - Grupo D
+            ("Noruega", "França", "2026-06-26 15:00"),  # Jogo 61 - Grupo I
+            ("Senegal", "Iraque", "2026-06-26 15:00"),  # Jogo 62 - Grupo I
+            ("Egito", "Irã", "2026-06-26 23:00"),  # Jogo 63 - Grupo G
+            ("Nova Zelândia", "Bélgica", "2026-06-26 23:00"),  # Jogo 64 - Grupo G
+            ("Cabo Verde", "Arábia Saudita", "2026-06-26 20:00"),  # Jogo 65 - Grupo H
+            ("Uruguai", "Espanha", "2026-06-26 20:00"),  # Jogo 66 - Grupo H
+            ("Panamá", "Inglaterra", "2026-06-27 17:00"),  # Jogo 67 - Grupo L
+            ("Croácia", "Gana", "2026-06-27 17:00"),  # Jogo 68 - Grupo L
+            ("Argélia", "Áustria", "2026-06-27 22:00"),  # Jogo 69 - Grupo J
+            ("Jordânia", "Argentina", "2026-06-27 22:00"),  # Jogo 70 - Grupo J
+            ("Colômbia", "Portugal", "2026-06-27 19:30"),  # Jogo 71 - Grupo K
+            ("RD Congo", "Uzbequistão", "2026-06-27 19:30"),  # Jogo 72 - Grupo K
         ]
         for team_a, team_b, dt in sample_matches:
             cur.execute(
@@ -593,8 +771,48 @@ def get_recent_results():
     return [dict(row) for row in rows]
 
 
+
+def flag_url(team: str) -> str:
+    code = COUNTRY_CODES.get(team)
+    if not code:
+        return ""
+    return f"https://flagcdn.com/w160/{code}.png"
+
+
 def team_label(team: str) -> str:
-    return f"{TEAMS.get(team, '🏳️')} {team}"
+    return team
+
+
+def team_shield_html(team: str, compact: bool = False) -> str:
+    image_url = flag_url(team)
+    compact_class = " compact" if compact else ""
+    if image_url:
+        return (
+            f'<div class="team-shield{compact_class}">'
+            f'<div class="flag-shield"><img src="{image_url}" alt="Bandeira de {team}"></div>'
+            f'<div class="shield-name">{team}</div>'
+            f'</div>'
+        )
+    return (
+        f'<div class="team-shield{compact_class}">'
+        f'<div class="flag-shield"></div>'
+        f'<div class="shield-name">{team}</div>'
+        f'</div>'
+    )
+
+
+def teams_row_html(teams: list[str], compact: bool = True) -> str:
+    return '<div class="team-shields-row">' + ''.join(team_shield_html(team, compact=compact) for team in teams) + '</div>'
+
+
+def versus_html(team_a: str, team_b: str, compact: bool = False) -> str:
+    return (
+        '<div class="versus-wrapper">'
+        + team_shield_html(team_a, compact=compact)
+        + '<div class="versus-x">X</div>'
+        + team_shield_html(team_b, compact=compact)
+        + '</div>'
+    )
 
 
 def login_screen():
@@ -606,14 +824,7 @@ def login_screen():
             <p class="hero-subtitle">
                 Faça login, registre seus palpites, acompanhe o ranking geral e dispute o Top 5 apostadores.
             </p>
-            <div class="team-badges">
-                <div class="team-badge">🇧🇷 Brasil</div>
-                <div class="team-badge">🇦🇷 Argentina</div>
-                <div class="team-badge">🇫🇷 França</div>
-                <div class="team-badge">🇩🇪 Alemanha</div>
-                <div class="team-badge">🇪🇸 Espanha</div>
-                <div class="team-badge">🇵🇹 Portugal</div>
-            </div>
+            {teams_row_html(["Brasil", "Argentina", "França", "Alemanha", "Espanha", "Portugal"], compact=True)}
         </div>
         """,
         unsafe_allow_html=True,
@@ -693,16 +904,7 @@ def render_dashboard():
             <p class="hero-subtitle">
                 Acompanhe os palpites, veja sua colocação e dispute o topo com todos os apostadores.
             </p>
-            <div class="team-badges">
-                <div class="team-badge">🇧🇷 Brasil</div>
-                <div class="team-badge">🇦🇷 Argentina</div>
-                <div class="team-badge">🇫🇷 França</div>
-                <div class="team-badge">🇩🇪 Alemanha</div>
-                <div class="team-badge">🇪🇸 Espanha</div>
-                <div class="team-badge">🇵🇹 Portugal</div>
-                <div class="team-badge">🏴 Inglaterra</div>
-                <div class="team-badge">🇮🇹 Itália</div>
-            </div>
+            {teams_row_html(["Brasil", "Argentina", "França", "Alemanha", "Espanha", "Portugal", "Inglaterra", "Canadá"], compact=True)}
         </div>
         """,
         unsafe_allow_html=True,
@@ -796,10 +998,10 @@ def render_matches_predictions():
         col1, col2, col3, col4 = st.columns([3, 1, 1, 1])
 
         with col1:
-            st.markdown(f"### {team_label(match['team_a'])} x {team_label(match['team_b'])}")
-            st.caption(f"Data: {match['match_datetime']} | Status: {match['status']}")
+            st.markdown(versus_html(match['team_a'], match['team_b']), unsafe_allow_html=True)
+            st.markdown(f'<div class="match-meta">Data: {match["match_datetime"]} | Status: {match["status"]}</div>', unsafe_allow_html=True)
             if match["status"] == "encerrado":
-                st.markdown(f"**Resultado:** {match['score_a']} x {match['score_b']}")
+                st.markdown(f'<div class="match-result-highlight">Resultado: {match["score_a"]} x {match["score_b"]}</div>', unsafe_allow_html=True)
 
         with col2:
             pred_a = st.number_input(
@@ -847,15 +1049,42 @@ def render_results():
             f"""
             <div class="match-line">
                 <strong>{match["match_datetime"]}</strong><br>
-                <span style="font-size:22px;">
-                    {team_label(match["team_a"])} <strong>{match["score_a"]}</strong>
-                    x
-                    <strong>{match["score_b"]}</strong> {team_label(match["team_b"])}
-                </span>
+                {versus_html(match["team_a"], match["team_b"], compact=False)}
+                <div class="match-result-highlight" style="margin-top:12px;">
+                    Placar final: <strong>{match["score_a"]} x {match["score_b"]}</strong>
+                </div>
             </div>
             """,
             unsafe_allow_html=True,
         )
+
+
+
+def change_user_password(user_id: int, current_password: str, new_password: str):
+    conn = get_conn()
+    cur = conn.cursor()
+    user = cur.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
+
+    if not user:
+        conn.close()
+        return False, "Usuário não encontrado."
+
+    if not check_password(current_password, user["password_hash"]):
+        conn.close()
+        return False, "Senha atual incorreta."
+
+    if len(new_password) < 6:
+        conn.close()
+        return False, "A nova senha precisa ter pelo menos 6 caracteres."
+
+    cur.execute(
+        "UPDATE users SET password_hash = ? WHERE id = ?",
+        (hash_password(new_password), user_id),
+    )
+    conn.commit()
+    conn.close()
+
+    return True, "Senha alterada com sucesso!"
 
 
 def render_admin():
@@ -874,7 +1103,7 @@ def render_admin():
         unsafe_allow_html=True,
     )
 
-    tab1, tab2, tab3 = st.tabs(["Cadastrar jogo", "Lançar resultado", "Usuários"])
+    tab1, tab2, tab3, tab4 = st.tabs(["Cadastrar jogo", "Lançar resultado", "Usuários", "Alterar senha"])
 
     with tab1:
         st.subheader("Cadastrar novo jogo")
@@ -907,10 +1136,10 @@ def render_admin():
             c1, c2, c3, c4 = st.columns([3, 1, 1, 2])
 
             with c1:
-                st.markdown(f"### {team_label(match['team_a'])} x {team_label(match['team_b'])}")
-                st.caption(f"{match['match_datetime']} | Status: {match['status']}")
+                st.markdown(versus_html(match['team_a'], match['team_b']), unsafe_allow_html=True)
+                st.markdown(f'<div class="match-meta">{match["match_datetime"]} | Status: {match["status"]}</div>', unsafe_allow_html=True)
                 if match["status"] == "encerrado":
-                    st.markdown(f"Resultado atual: **{match['score_a']} x {match['score_b']}**")
+                    st.markdown(f'<div class="match-result-highlight">Resultado atual: {match["score_a"]} x {match["score_b"]}</div>', unsafe_allow_html=True)
 
             with c2:
                 score_a = st.number_input(
@@ -965,6 +1194,42 @@ def render_admin():
             st.dataframe(df, use_container_width=True, hide_index=True)
         else:
             st.info("Nenhum usuário cadastrado.")
+
+
+    with tab4:
+        st.subheader("Alterar senha do administrador")
+
+        st.markdown(
+            """
+            <div class="admin-warning">
+                Use esta área para trocar a senha do usuário administrador logado.
+                Depois de alterar, saia do sistema e entre novamente com a nova senha.
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        senha_atual = st.text_input("Senha atual", type="password", key="admin_current_password")
+        nova_senha = st.text_input("Nova senha", type="password", key="admin_new_password")
+        confirmar_senha = st.text_input("Confirmar nova senha", type="password", key="admin_confirm_password")
+
+        if st.button("Alterar minha senha", use_container_width=True):
+            if not senha_atual or not nova_senha or not confirmar_senha:
+                st.error("Preencha todos os campos.")
+            elif nova_senha != confirmar_senha:
+                st.error("A confirmação da senha não confere.")
+            else:
+                ok, msg = change_user_password(
+                    st.session_state.user["id"],
+                    senha_atual,
+                    nova_senha,
+                )
+                if ok:
+                    st.success(msg)
+                    st.info("Agora clique em Sair e entre novamente usando a nova senha.")
+                else:
+                    st.error(msg)
+
 
 
 def main():
